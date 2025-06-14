@@ -1,0 +1,77 @@
+GET http://localhost:8000/api/v1/products/ HTTP/1.1
+
+###
+
+GET http://localhost:8000/api/v1/products/10/ HTTP/1.1
+
+###
+
+PUT http://localhost:8000/api/v1/products/10/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5NzM1NDk1LCJpYXQiOjE3NDk3MzUxOTUsImp0aSI6IjE0ZDNhYTNhZDk0ZDQyNzZiZTQ3YTEyMDcxM2VlOWU2IiwidXNlcl9pZCI6MX0.45gqKckNRiz3wLORtZ9I-5m02lmT9854ZOd-vL859z4
+
+{
+    "name": "Xiaomi Redmi Note 14",
+    "price": 200.00,
+    "stock": 11,
+    "description": "Latest Xiaomi smartphone with advanced features"
+}
+
+###
+
+DELETE http://localhost:8000/api/v1/products/1/ HTTP/1.1
+Authorization: Bearer
+
+###
+POST http://localhost:8000/api/v1/products/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5NzM1NDk1LCJpYXQiOjE3NDk3MzUxOTUsImp0aSI6IjE0ZDNhYTNhZDk0ZDQyNzZiZTQ3YTEyMDcxM2VlOWU2IiwidXNlcl9pZCI6MX0.45gqKckNRiz3wLORtZ9I-5m02lmT9854ZOd-vL859z4
+
+{
+    "name": "Xiaomi Redmi Note 14",
+    "price": 200.00,
+    "stock": 11,
+    "description": "Latest Xiaomi smartphone with advanced features"
+}
+
+###
+POST http://localhost:8000/api/token/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "test"
+}
+
+###
+GET http://localhost:8000/api/v1/orders/cb6bd1c8-58c6-42ff-b436-744a69ac28d3/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5ODc4Mzk3LCJpYXQiOjE3NDk4NzgwOTcsImp0aSI6IjNkYzdjZjY3MjkxZDRkZmU4NWIyNzg5ZjdhNTM3YzNhIiwidXNlcl9pZCI6Mn0.CwYqCYkWDwWD9_Ob4cuKLzPsMuDcuiD7-95Xao_LHNk
+###
+GET http://localhost:8000/api/v1/orders/user-orders/ HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5NzIyNzQ3LCJpYXQiOjE3NDk3MjI0NDcsImp0aSI6ImI0NzEwNzM2NGYzODQyODdiZDVhZmNjNWYwNTNkNGU0IiwidXNlcl9pZCI6Mn0.l2qnAKmfIHiuP5gIHVDVnLL97bv4za4rpDskL39OlRA
+
+###
+POST http://localhost:8000/api/token/refresh/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc0OTgxODQ5OSwiaWF0IjoxNzQ5NzMyMDk5LCJqdGkiOiJhYzU2N2ZiYjA2Njc0YWYwOTc1OTk3OTEzMDBiMzUzYiIsInVzZXJfaWQiOjJ9.7W9iFvjzkrjXFzPQvA97yEeIoJxePWzS3UWMFOOnySY"
+}
+
+###
+POST http://localhost:8000/api/v1/orders/ HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ5ODk4NzQ3LCJpYXQiOjE3NDk4OTg0NDcsImp0aSI6IjRiNmY4NjBkNTc5ZTQ2MjNhOTQ0ZWQ4MzYwMTE5YjJkIiwidXNlcl9pZCI6MX0.gFqkTclWpCUA0q9xdNBXlnaz-71y2nL7FicEbV03iHY
+
+{
+	"items": [
+		{
+				"product": 4,
+				"quantity": 1
+		},
+		{
+				"product": 6,
+				"quantity": 2
+		}
+	]
+}

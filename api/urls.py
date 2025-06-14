@@ -1,9 +1,13 @@
 from django.urls import path
 from . import views
+from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
-    path('products/',views.product_list,name='get_all_products'),
-    path('products/info',views.product_info,name='get_product_info'),
-    path('products/<int:pk>/',views.product_detail, name='get_product_by_id'),
-    path('orders/',views.order_list,name='get_all_orders'),
+    path('products/',views.ProductListCreateAPIView.as_view(),name='get_all_products'),
+    path('products/info',views.ProductInfoAPIView.as_view(),name='get_product_info'),
+    path('products/<int:pk>/',views.ProductDetailAPIView.as_view(), name='get_product_by_id'),
 ]
+
+router = DefaultRouter()
+router.register('orders', views.OrderViewSet)
+urlpatterns += router.urls

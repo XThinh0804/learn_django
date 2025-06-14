@@ -1,28 +1,103 @@
-from django.shortcuts import get_object_or_404
 from django.db.models import Max
-from api.serializers import ProductSerializer, OrderItemSerializer,OrderSerializer,ProductInfoSerializer
-from api.models import Product,Order, OrderItem
-from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema
+from rest_framework import filters, generics, viewsets
 from rest_framework.decorators import api_view
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from api.filters import InStockFilterBackend, OrderFilter, ProductFilter
+from api.models import Order, Product
+from api.serializers import (OrderSerializer,ProductInfoSerializer,
+                            ProductSerializer, OrderCreateSerializer)
+
 
 # Create your views here.
-@api_view(['GET'])
-def product_list(request):
-    products = Product.objects.all()
-    serializer = ProductSerializer(products, many=True)
-    return Response(serializer.data)
+@extend_schema(tags=["Products"])
+class ProductListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Product.objects.order_by('pk')
+    serializer_class = ProductSerializer
+    filterset_class = ProductFilter
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        InStockFilterBackend
+    ]
+    #SearchFilter:full text search
+    search_fields = ['name', 'description']
+    #OrderingFilter:cho phép sắp xếp theo trường nào đó
+    ordering_fields = ['name','price','stock']
+    # pagination_class = LimitOffsetPagination # Phân trang theo giới hạn và offset
+    pagination_class = PageNumberPagination # Phân trang theo số trang
+    pagination_class.page_size = 2
+    pagination_class.page_query_param = 'pageNo' # Thay đổi tên tham số phân trang
+    pagination_class.page_size_query_param = 'pageSize' # Thay đổi tên tham số kích thước trang
+    pagination_class.max_page_size = 6
+    def get_permissions(self):
+        self.permission_classes = [AllowAny]
+        if self.request.method in ['POST']:
+            self.permission_classes = [IsAdminUser]
+        return super().get_permissions()
 
-@api_view(['GET'])
-def product_detail(request,pk):
-    product = get_object_or_404(Product, pk=pk)
-    serializer = ProductSerializer(product)
-    return Response(serializer.data)
+@extend_schema(tags=["Products"])
+class ProductDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    def get_permissions(self):
+        self.permission_classes = [AllowAny]
+        if self.request.method in ['DELETE', 'PUT', 'PATCH']:
+            # Nếu là phương thức DELETE, PUT hoặc PATCH thì chỉ cho phép admin
+            self.permission_classes = [IsAdminUser]
+        return super().get_permissions()
+    # lookup_url_kwarg = 'product_id' nếu muốn sử dụng một tên khác thay pk trong URL
 
-@api_view(['GET'])
-def order_list(request):
-    orders = Order.objects.all()
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+@extend_schema(tags=["Orders"])
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.prefetch_related('items__product')
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+    filterset_class = OrderFilter
+    filter_backends = [DjangoFilterBackend]
+
+    def perform_create(self, serializer):
+        serializer.save(user = self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return OrderCreateSerializer
+        return super().get_serializer_class()
+
+    def get_queryset(self):
+        qs =  super().get_queryset()
+        if not self.request.user.is_staff:
+            return qs.filter(user=self.request.user)
+        return qs
+    # @action(
+    #         detail= False,
+    #         methods=['get'],
+    #         url_path='user-orders'
+    # )
+    # def user_orders(self, request):
+    #     orders = self.get_queryset().filter(user=request.user)
+    #     serializer = self.get_serializer(orders, many = True)
+    #     return Response(serializer.data)
+
+@extend_schema(tags=["Products"])
+class ProductInfoAPIView(APIView):
+    def get(self, request):
+        products = Product.objects.all()
+        serializer = ProductInfoSerializer({
+            'products': products,
+            'count': len(products),
+            'max_price': products.aggregate(max_price=Max('price'))['max_price'] or 0
+        })
+        return Response(serializer.data)
 
 @api_view(['GET'])
 def product_info(request):
